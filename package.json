@@ -1,8 +1,14 @@
 {
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^9.3.3",
+    "nodemailer": "^8.0.5",
+    "sweetalert2": "^11.26.24"
   },
   "name": "sign-signup-page",
   "version": "1.0.0",
