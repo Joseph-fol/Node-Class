@@ -20,6 +20,8 @@ const getDashboard = (req, res) => {
 const postSignUp = (req, res) => {
     let salt = bcrypt.genSaltSync(10)
     let hashedPassword = bcrypt.hashSync(req.body.password, salt)
+
+    // overwrite
     req.body.password = hashedPassword
     const userDetail = req.body
     // user.push(userDetail)
@@ -97,7 +99,6 @@ const postSignin = (req, res) => {
             }
 
             const isMatch = bcrypt.compareSync(password, foundCustomer.password)
-
             if (!isMatch) {
                 console.log("Invalid password");
                 return res.redirect('/user/signin?error=invalid')
