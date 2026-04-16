@@ -116,14 +116,14 @@ const postSignin = (req, res) => {
 
 const getAllUser = (req, res) =>{
     Customer.find()
-    .then((allUser) =>{
-        console.log("All users", allUser);
+    .then((allUsers) =>{
+        console.log("All users", allUsers);
         res.status(200).json({
             message: "Registered Users",
             users: allUsers
         })
     })
-    
+
     .catch((err)=>{
         console.error("Error fetching user", err);
         res.status(500).send("Internal Server Error")
