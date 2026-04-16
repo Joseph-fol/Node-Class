@@ -53,10 +53,10 @@ const postSignUp = (req, res) => {
                                 <h1 style="color:white; text-align: center;">Welcome to our Application</h1>
                             </div>
 
-                            <div style="padding: 30px; text-align: center;">
+                            <div style="padding: 30px ; text-align: center;">
                                 <p style="font-size: 18px;"><span style="font-weight: 600;">Congratulations!</span> Your sign-up was successful!</p>
 
-                                <p style= "line-height: 25px;">Welcome to <a href="#">FinTek</a>, one of the fastest growing online quiz/cbt platform in Nigeria. By joining us you have taken the first step toward unlocking your full experience in taking online quiz <br>
+                                <p style= "line-height: 25px; padding: 30px;">Welcome to <a href="#">FinTek</a>, one of the fastest growing online quiz/cbt platform in Nigeria. By joining us you have taken the first step toward unlocking your full experience in taking online quiz <br>
                                 
                                     We will like to hear from you if you have any complaint on your account
                                 </p>
@@ -111,8 +111,24 @@ const postSignin = (req, res) => {
         .catch((err) => {
             console.error("Error during signin", err);
             return res.status(500).send("Internal server error")
-
         })
 }
 
-module.exports = { postSignUp, getSignUp, postSignin, getSignin, getDashboard }
+const getAllUser = (req, res) =>{
+    Customer.find()
+    .then((allUser) =>{
+        console.log("All users", allUser);
+        res.status(200).json({
+            message: "Registered Users",
+            users: allUsers
+        })
+    })
+    
+    .catch((err)=>{
+        console.error("Error fetching user", err);
+        res.status(500).send("Internal Server Error")
+        
+    })
+}
+
+module.exports = { postSignUp, getSignUp, postSignin, getSignin, getDashboard, getAllUser }
