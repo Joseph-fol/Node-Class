@@ -48,12 +48,12 @@ const postSignUp = (req, res) => {
                 to: [userDetail.email, "olawoyinjosephfolasakin@gmail.com"],
                 subject: "Welcome to our website",
                 html: `
-                        <div style="background-color: #f4f4f4; padding: 0 0 10px; border-radius: 30px 30px 0 0  ;">
+                        <div style="background-color: black; padding: 0 0 10px; border-radius: 30px 30px 0 0  ;">
                             <div style="padding-top: 20px; height: 100px; border-radius: 30px 30px 0 0 ; background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100% );">
                                 <h1 style="color:white; text-align: center;">Welcome to our Application</h1>
                             </div>
 
-                            <div style="padding: 30px 0; text-align: center;">
+                            <div style="padding: 30px; text-align: center;">
                                 <p style="font-size: 18px;"><span style="font-weight: 600;">Congratulations!</span> Your sign-up was successful!</p>
 
                                 <p style= "line-height: 25px;">Welcome to <a href="#">FinTek</a>, one of the fastest growing online quiz/cbt platform in Nigeria. By joining us you have taken the first step toward unlocking your full experience in taking online quiz <br>
