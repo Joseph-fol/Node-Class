@@ -1,6 +1,11 @@
 const Customer = require("../models/user.model")
 const bcrypt = require("bcryptjs")
 const nodemailer = require("nodemailer")
+const dotenv = require("dotenv")
+dotenv.config()
+const jwt = require("jsonwebtoken")
+
+const JWT_Secret = process.env.jwtSecretKey
 
 const getSignUp = (req, res) => {
     res.render('signup')
@@ -23,7 +28,7 @@ const postSignUp = (req, res) => {
 
     // overwrite
     req.body.password = hashedPassword
-    const userDetail = req.body
+    const userDetail = req.body 
     // user.push(userDetail)
     // console.log(user);
     // res.send("You have successfully registered")
@@ -32,7 +37,6 @@ const postSignUp = (req, res) => {
     newCustomer.save()
         .then(() => {
             console.log('Customer saved', userDetail);
-
             // Transporter means the information about the service you are using to send the email
             let transporter = nodemailer.createTransport({
                 service: "gmail",
@@ -103,6 +107,22 @@ const postSignin = (req, res) => {
                 console.log("Invalid password");
                 return res.redirect('/user/signin?error=invalid')
             }
+
+            const  token = jwt.sign({email: req.body.email}, JWT_Secret, {expiresIn: "1h"})
+            console.log("Generated Token", token);
+            
+            // For Frontend to use 
+            return res.json({
+                message: "Login Successful",
+                user: {
+                    id: foundCustomer._id,
+                    email: foundCustomer.email,
+                    firstName: foundCustomer.firstName,
+                    lastName: foundCustomer.lastName,
+                    token : token
+                }
+            })
+
 
             console.log("Login Successful for", foundCustomer.email);
             return res.redirect('/user/dashboard?signin=success')

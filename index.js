@@ -1,7 +1,6 @@
 const express = require('express')
 const ejs = require('ejs')
 const app = express()
-// const port = 2122
 const cors = require('cors')
 const dotenv = require("dotenv")
 const userRoute = require('./routes/user.route')
