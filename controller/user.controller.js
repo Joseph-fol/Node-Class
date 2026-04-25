@@ -17,18 +17,13 @@ const getSignin = (req, res) => {
     res.render("signin", { signupSuccess, errorMessage })
 }
 
-const getDashboard = (req, res) => {
-    const signinSuccess = req.query.signin === "success"
-    res.render("dashboard", { signinSuccess })
-}
-
 const postSignUp = (req, res) => {
     let salt = bcrypt.genSaltSync(10)
     let hashedPassword = bcrypt.hashSync(req.body.password, salt)
 
     // overwrite
     req.body.password = hashedPassword
-    const userDetail = req.body 
+    const userDetail = req.body
     // user.push(userDetail)
     // console.log(user);
     // res.send("You have successfully registered")
@@ -108,9 +103,9 @@ const postSignin = (req, res) => {
                 return res.redirect('/user/signin?error=invalid')
             }
 
-            const  token = jwt.sign({email: req.body.email}, JWT_Secret, {expiresIn: "1h"})
-            console.log("Generated Token", token);
-            
+            const token = jwt.sign({ email: req.body.email }, JWT_Secret, { expiresIn: "1h" })
+            console.log("Generated Token:", token);
+
             // For Frontend to use 
             return res.json({
                 message: "Login Successful",
@@ -119,7 +114,7 @@ const postSignin = (req, res) => {
                     email: foundCustomer.email,
                     firstName: foundCustomer.firstName,
                     lastName: foundCustomer.lastName,
-                    token : token
+                    token: token
                 }
             })
 
@@ -134,21 +129,56 @@ const postSignin = (req, res) => {
         })
 }
 
-const getAllUser = (req, res) =>{
+const getAllUser = (req, res) => {
     Customer.find()
-    .then((allUsers) =>{
-        console.log("All users", allUsers);
-        res.status(200).json({
-            message: "Registered Users",
-            users: allUsers
+        .then((allUsers) => {
+            console.log("All users", allUsers);
+            res.status(200).json({
+                message: "Registered Users",
+                users: allUsers
+            })
         })
+        .catch((err) => {
+            console.error("Error fetching user", err);
+            res.status(500).send("Internal Server Error")
+
+        })
+}
+
+const getDashboard = (req, res) => {
+    const signinSuccess = req.query.signin === "success"
+    res.render("dashboard", { signinSuccess })
+
+    let token = req.headers.authorization.split(" ")[1]
+    jwt.verify(token, JWT_Secret, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: "Invalid or expired token" })
+        }
+        else {
+            console.log("Decoded token data:", decoded);
+            let userEmail = decoded.email
+
+            Customer.findOne({ email: userEmail })
+                .then((user) => {
+                    if (!user) {
+                        return res.status(404).json({ message: "User Not Found" })
+                    }
+                    console.log("User Found:", user);
+                    res.json({
+                        message: "Dashboard Accessed Successfully",
+                        user: {
+                            email: user.email,
+                            firstName: user.firstName
+                        }
+                    })
+                })
+                .catch((err) => {
+                    console.log("Error fetching user", err);
+                    return res.status(500).json({ message: "Internal server error" })
+                })
+        }
     })
 
-    .catch((err)=>{
-        console.error("Error fetching user", err);
-        res.status(500).send("Internal Server Error")
-        
-    })
 }
 
 module.exports = { postSignUp, getSignUp, postSignin, getSignin, getDashboard, getAllUser }
