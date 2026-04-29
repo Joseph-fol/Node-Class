@@ -96,7 +96,6 @@ const postSignin = (req, res) => {
                 console.log("Invalid email");
                 return res.redirect('/user/signin?error=invalid')
             }
-
             const isMatch = bcrypt.compareSync(password, foundCustomer.password)
             if (!isMatch) {
                 console.log("Invalid password");
@@ -147,7 +146,6 @@ const getAllUser = (req, res) => {
 const getDashboard = (req, res) => {
     const signinSuccess = req.query.signin === "success"
     res.render("dashboard", { signinSuccess })
-
     let token = req.headers.authorization.split(" ")[1]
 
     jwt.verify(token, JWT_Secret, (err, decoded) => {
