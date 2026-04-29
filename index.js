@@ -9,7 +9,6 @@ const mongoose = require("mongoose")
 
 app.set("view engine", 'ejs')
 app.use(cors())
-
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -17,7 +16,6 @@ dotenv.config()
 
 const port = process.env.PORT
 const URI = process.env.MONGO_URI
-
 const dns = require('node:dns');
 // This forces Node.js to use Google's DNS servers instead of local one
 dns.setDefaultResultOrder('ipv4first');

@@ -118,7 +118,6 @@ const postSignin = (req, res) => {
                 }
             })
 
-
             console.log("Login Successful for", foundCustomer.email);
             return res.redirect('/user/dashboard?signin=success')
             // return res.redirect("/user/dashboard")
@@ -150,6 +149,7 @@ const getDashboard = (req, res) => {
     res.render("dashboard", { signinSuccess })
 
     let token = req.headers.authorization.split(" ")[1]
+
     jwt.verify(token, JWT_Secret, (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: "Invalid or expired token" })
@@ -165,7 +165,7 @@ const getDashboard = (req, res) => {
                     }
                     console.log("User Found:", user);
                     res.json({
-                        message: "Dashboard Accessed Successfully",
+                        message: "Dashboard accessed Successfully",
                         user: {
                             email: user.email,
                             firstName: user.firstName
