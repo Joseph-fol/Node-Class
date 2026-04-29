@@ -27,26 +27,36 @@ const postSignUp = (req, res) => {
     // user.push(userDetail)
     // console.log(user);
     // res.send("You have successfully registered")
+    Customer.findOne({ email: req.body.email })
+        .then((userExist) => {
+            if (userExist) {
+                console.log("User already exists");
+                return res.status(409).json({
+                    message: "User already exists",
+                    email: userExist.email
+                })
+            }
 
-    const newCustomer = new Customer(userDetail)
-    newCustomer.save()
-        .then(() => {
-            console.log('Customer saved', userDetail);
-            // Transporter means the information about the service you are using to send the email
-            let transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: "olawoyinjoseph05@gmail.com",
-                    pass: "tyig bqlg ehmv hzpq",
-                }
-            })
+            else {
+                const newCustomer = new Customer(userDetail)
+                newCustomer.save()
+                    .then(() => {
+                        console.log('Customer saved', userDetail);
+                        // Transporter means the information about the service you are using to send the email
+                        let transporter = nodemailer.createTransport({
+                            service: "gmail",
+                            auth: {
+                                user: "olawoyinjoseph05@gmail.com",
+                                pass: "tyig bqlg ehmv hzpq",
+                            }
+                        })
 
-            // This is the information about the mail you are sending
-            let mailOptions = {
-                from: "Fintek",
-                to: [userDetail.email, "olawoyinjosephfolasakin@gmail.com"],
-                subject: "Welcome to our website",
-                html: `
+                        // This is the information about the mail you are sending
+                        let mailOptions = {
+                            from: "Fintek",
+                            to: [userDetail.email, "olawoyinjosephfolasakin@gmail.com"],
+                            subject: "Welcome to our website",
+                            html: `
                         <div style="background-color: black; padding: 0 0 10px; border-radius: 30px 30px 0 0  ;">
                             <div style="padding-top: 20px; height: 100px; border-radius: 30px 30px 0 0 ; background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100% );">
                                 <h1 style="color:white; text-align: center;">Welcome to our Application</h1>
@@ -68,19 +78,22 @@ const postSignUp = (req, res) => {
                             </div>
                         </div>
                     `
-            }
+                        }
 
-            // This is what will send the gmail to the user
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(err);
-                }
-                else {
-                    console.log("Email sent: " + info.response);
-                }
-                return res.redirect('/user/signin?signup=success')
-            })
+                        // This is what will send the gmail to the user
+                        transporter.sendMail(mailOptions, function (error, info) {
+                            if (error) {
+                                console.log(err);
+                            }
+                            else {
+                                console.log("Email sent: " + info.response);
+                            }
+                            return res.redirect('/user/signin?signup=success')
+                        })
+                    })
+            }
         })
+
         .catch((err) => {
             console.error("Error saving to DB", err);
             return res.status(500).send("Error: " + err.message)
