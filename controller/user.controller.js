@@ -36,12 +36,12 @@ const postSignUp = (req, res) => {
                     email: userExist.email
                 })
             }
-
             else {
                 const newCustomer = new Customer(userDetail)
                 newCustomer.save()
                     .then(() => {
                         console.log('Customer saved', userDetail);
+                        res.redirect("/user/signin?signup=success")
                         // Transporter means the information about the service you are using to send the email
                         let transporter = nodemailer.createTransport({
                             service: "gmail",
@@ -83,12 +83,11 @@ const postSignUp = (req, res) => {
                         // This is what will send the gmail to the user
                         transporter.sendMail(mailOptions, function (error, info) {
                             if (error) {
-                                console.log(err);
+                                console.error("Email sending failed", error.message);
                             }
                             else {
                                 console.log("Email sent: " + info.response);
                             }
-                            return res.redirect('/user/signin?signup=success')
                         })
                     })
             }
@@ -96,7 +95,7 @@ const postSignUp = (req, res) => {
 
         .catch((err) => {
             console.error("Error saving to DB", err);
-            return res.status(500).send("Error: " + err.message)
+            return res.status(500).send("Error: ", err.message)
         })
 }
 
