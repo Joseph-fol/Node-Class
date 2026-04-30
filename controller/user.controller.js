@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
 
 const JWT_Secret = process.env.jwtSecretKey
+console.log("JWT_Secret loaded:", JWT_Secret ? "✓ PRESENT" : "✗ MISSING")
 
 const getSignUp = (req, res) => {
     res.render('signup')
