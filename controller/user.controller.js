@@ -99,64 +99,55 @@ const postSignUp = (req, res) => {
         })
 }
 
-const postSignin = (req, res) => {
-    // Destructuring
-    const { email, password } = req.body;
+const postSignin = async (req, res) => {
+    try {
+        // Destructuring
+        const { email, password } = req.body;
 
-    // Input validation
-    if (!email || !password) {
-        console.log("Missing email or password");
-        return res.status(400).json({ message: "Email and password are required" })
-    }
+        // Input validation
+        if (!email || !password) {
+            console.log("Missing email or password");
+            return res.status(400).json({ message: "Email and password are required" })
+        }
 
-    Customer.findOne({ email })
-        .then((foundCustomer) => {
-            if (!foundCustomer) {
-                console.log("Invalid email");
-                return res.redirect('/user/signin?error=invalid')
+        const foundCustomer = await Customer.findOne({ email })
+
+        if (!foundCustomer) {
+            console.log("Invalid email");
+            return res.redirect('/user/signin?error=invalid')
+        }
+
+        const isMatch = bcrypt.compareSync(password, foundCustomer.password)
+
+        if (!isMatch) {
+            console.log("Invalid password");
+            return res.redirect('/user/signin?error=invalid')
+        }
+
+        // Check if JWT_Secret is set
+        if (!JWT_Secret) {
+            console.error("JWT_Secret not configured");
+            return res.status(500).json({ message: "Server configuration error" })
+        }
+
+        const token = jwt.sign({ email: foundCustomer.email }, JWT_Secret, { expiresIn: "1h" })
+        console.log("Generated Token for:", foundCustomer.email);
+
+        // For Frontend to use 
+        return res.json({
+            message: "Login Successful",
+            user: {
+                id: foundCustomer._id,
+                email: foundCustomer.email,
+                firstName: foundCustomer.firstName,
+                lastName: foundCustomer.lastName,
+                token: token
             }
-
-            // Wrap bcrypt comparison in Promise
-            return Promise.resolve()
-                .then(() => {
-                    return bcrypt.compareSync(password, foundCustomer.password)
-                })
-                .then((isMatch) => {
-                    if (!isMatch) {
-                        console.log("Invalid password");
-                        return res.redirect('/user/signin?error=invalid')
-                    }
-
-                    // Check if JWT_Secret is set
-                    if (!JWT_Secret) {
-                        console.error("JWT_Secret not configured");
-                        return res.status(500).json({ message: "Server configuration error" })
-                    }
-
-                    const token = jwt.sign({ email: foundCustomer.email }, JWT_Secret, { expiresIn: "1h" })
-                    console.log("Generated Token for:", foundCustomer.email);
-
-                    // For Frontend to use 
-                    return res.json({
-                        message: "Login Successful",
-                        user: {
-                            id: foundCustomer._id,
-                            email: foundCustomer.email,
-                            firstName: foundCustomer.firstName,
-                            lastName: foundCustomer.lastName,
-                            token: token
-                        }
-                    })
-                })
-                .catch((bcryptErr) => {
-                    console.error("Bcrypt comparison error:", bcryptErr.message);
-                    return res.status(500).json({ message: "Authentication error" })
-                })
         })
-        .catch((err) => {
-            console.error("Database error during signin:", err.message);
-            return res.status(500).json({ message: "Database error. Please try again." })
-        })
+    } catch (err) {
+        console.error("Error during signin:", err.message);
+        return res.status(500).json({ message: "Internal server error" })
+    }
 }
 
 const getAllUser = (req, res) => {
