@@ -85,6 +85,7 @@ const postSignUp = (req, res) => {
                             if (error) {
                                 console.error("Email sending failed", error.message);
                             }
+
                             else {
                                 console.log("Email sent: " + info.response);
                             }
@@ -92,50 +93,69 @@ const postSignUp = (req, res) => {
                     })
             }
         })
-
         .catch((err) => {
             console.error("Error saving to DB", err);
-            return res.status(500).send("Error: ", err.message)
+            return res.status(500).json({ message: "Signup failed: " + err.message })
         })
 }
 
 const postSignin = (req, res) => {
     // Destructuring
     const { email, password } = req.body;
+
+    // Input validation
+    if (!email || !password) {
+        console.log("Missing email or password");
+        return res.status(400).json({ message: "Email and password are required" })
+    }
+
     Customer.findOne({ email })
         .then((foundCustomer) => {
             if (!foundCustomer) {
                 console.log("Invalid email");
                 return res.redirect('/user/signin?error=invalid')
             }
-            const isMatch = bcrypt.compareSync(password, foundCustomer.password)
-            if (!isMatch) {
-                console.log("Invalid password");
-                return res.redirect('/user/signin?error=invalid')
-            }
 
-            const token = jwt.sign({ email: req.body.email }, JWT_Secret, { expiresIn: "1h" })
-            console.log("Generated Token:", token);
+            // Wrap bcrypt comparison in Promise
+            return Promise.resolve()
+                .then(() => {
+                    return bcrypt.compareSync(password, foundCustomer.password)
+                })
+                .then((isMatch) => {
+                    if (!isMatch) {
+                        console.log("Invalid password");
+                        return res.redirect('/user/signin?error=invalid')
+                    }
 
-            // For Frontend to use 
-            return res.json({
-                message: "Login Successful",
-                user: {
-                    id: foundCustomer._id,
-                    email: foundCustomer.email,
-                    firstName: foundCustomer.firstName,
-                    lastName: foundCustomer.lastName,
-                    token: token
-                }
-            })
+                    // Check if JWT_Secret is set
+                    if (!JWT_Secret) {
+                        console.error("JWT_Secret not configured");
+                        return res.status(500).json({ message: "Server configuration error" })
+                    }
 
-            console.log("Login Successful for", foundCustomer.email);
-            return res.redirect('/user/dashboard?signin=success')
-            // return res.redirect("/user/dashboard")
+                    const token = jwt.sign({ email: foundCustomer.email }, JWT_Secret, { expiresIn: "1h" })
+                    console.log("Generated Token for:", foundCustomer.email);
+
+                    // For Frontend to use 
+                    return res.json({
+                        message: "Login Successful",
+                        user: {
+                            id: foundCustomer._id,
+                            email: foundCustomer.email,
+                            firstName: foundCustomer.firstName,
+                            lastName: foundCustomer.lastName,
+                            token: token
+                        }
+                    })
+                })
+                .catch((bcryptErr) => {
+                    console.error("Bcrypt comparison error:", bcryptErr.message);
+                    return res.status(500).json({ message: "Authentication error" })
+                })
         })
         .catch((err) => {
-            console.error("Error during signin", err);
-            return res.status(500).send("Internal server error")
+            console.error("Database error during signin:", err.message);
+            return res.status(500).json({ message: "Database error. Please try again." })
         })
 }
 
@@ -151,7 +171,6 @@ const getAllUser = (req, res) => {
         .catch((err) => {
             console.error("Error fetching user", err);
             res.status(500).send("Internal Server Error")
-
         })
 }
 
@@ -167,7 +186,6 @@ const getDashboard = (req, res) => {
         else {
             console.log("Decoded token data:", decoded);
             let userEmail = decoded.email
-
             Customer.findOne({ email: userEmail })
                 .then((user) => {
                     if (!user) {
