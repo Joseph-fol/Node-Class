@@ -124,10 +124,10 @@ const postSignin = async (req, res) => {
         }
 
         // Check if JWT_Secret is set
-        if (!JWT_Secret) {
-            console.error("JWT_Secret not configured");
-            return res.status(500).json({ message: "Server configuration error" })
-        }
+        // if (!JWT_Secret) {
+        //     console.error("JWT_Secret not configured");
+        //     return res.status(500).json({ message: "Server configuration error" })
+        // }
 
         const token = jwt.sign({ email: foundCustomer.email }, JWT_Secret, { expiresIn: "1h" })
         console.log("Generated Token for:", foundCustomer.email);
