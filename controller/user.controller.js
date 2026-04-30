@@ -1,8 +1,6 @@
 const Customer = require("../models/user.model")
 const bcrypt = require("bcryptjs")
 const nodemailer = require("nodemailer")
-const dotenv = require("dotenv")
-dotenv.config()
 const jwt = require("jsonwebtoken")
 
 const JWT_Secret = process.env.jwtSecretKey
