@@ -105,20 +105,18 @@ const postSignin = async (req, res) => {
         const { email, password } = req.body;
 
         // Input validation
-        // if (!email || !password) {
-        //     console.log("Missing email or password");
-        //     return res.status(400).json({ message: "Email and password are required" })
-        // }
-
+        if (!email || !password) {
+            console.log("Missing email or password");
+            return res.status(400).json({ message: "Email and password are required" })
+        }
+        
         const foundCustomer = await Customer.findOne({ email })
-
         if (!foundCustomer) {
             console.log("Invalid email");
             return res.redirect('/user/signin?error=invalid')
         }
 
         const isMatch = bcrypt.compareSync(password, foundCustomer.password)
-
         if (!isMatch) {
             console.log("Invalid password");
             return res.redirect('/user/signin?error=invalid')
@@ -144,7 +142,7 @@ const postSignin = async (req, res) => {
                 token: token
             }
         })
-
+        
     } catch (err) {
         console.error("Error during signin:", err.message);
         return res.status(500).json({ message: "Internal server error" })
